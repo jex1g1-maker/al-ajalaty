@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العجلاتي | Al-Ajalati - منصة بيع وحجز الدراجات</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs (v10.8.0 - Realtime Database) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandNavy: '#0D1B2A',
+                        brandBlue: '#1B263B',
+                        brandBronze: '#C59B27',
+                        brandGold: '#E5C158',
+                        brandCream: '#F4F1DE',
+                        brandDarkBg: '#080E17',
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        tajawal: ['Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #080E17;
+            color: #F4F1DE;
+            scroll-behavior: smooth;
+        }
+        .bg-pattern {
+            background-image: radial-gradient(#C59B27 0.75px, transparent 0.75px);
+            background-size: 24px 24px;
+            opacity: 0.08;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFF0B9 0%, #C59B27 50%, #9A7412 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0D1B2A;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #C59B27;
+            border-radius: 4px;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(197, 155, 39, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(197, 155, 39, 0.6); }
+        }
+        .gold-glow {
+            animation: pulseGlow 3s infinite;
+        }
+    </style>
+</head>
+<body class="custom-scrollbar selection:bg-brandBronze selection:text-white relative min-h-screen flex flex-col justify-between">
+
+    <!-- خلفية زخرفية -->
+    <div class="fixed inset-0 bg-pattern pointer-events-none z-0"></div>
+
+    <!-- التنبيهات العائمة (Toast Container) -->
+    <div id="toastContainer" class="fixed top-24 left-4 z-50 space-y-3 pointer-events-none"></div>
+
+    <!-- الشريط العلوي (Navbar) -->
+    <header class="sticky top-0 z-40 bg-brandNavy/95 backdrop-blur-md border-b border-brandBronze/30 shadow-2xl">
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚲</text></svg>">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            
+            <!-- الشعار مع خاصية الـ Triple-Click السرية للدخول للوحة التحكم -->
+            <div id="secretAdminTrigger" title="العجلاتي" class="flex items-center gap-3 cursor-pointer select-none group">
+                <div class="w-12 h-12 rounded-full border-2 border-brandBronze flex items-center justify-center bg-brandDarkBg shadow-lg group-hover:scale-105 transition">
+                    <i class="fa-solid fa-bicycle text-brandGold text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black gold-gradient-text tracking-wide">العجلاتي</h1>
+                    <p class="text-[10px] text-brandGold/70 font-tajawal">AL-AJALATI • متجر ودراجات مصر</p>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-8 font-semibold text-sm">
+                <a href="#hero" class="text-brandCream hover:text-brandGold transition">الرئيسية</a>
+                <a href="#bikes" class="text-brandCream hover:text-brandGold transition">الدراجات المعروضة</a>
+                <a href="#parts" class="text-brandCream hover:text-brandGold transition">قطع الغيار</a>
+                <a href="#features" class="text-brandCream hover:text-brandGold transition">مميزاتنا</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <a href="#bikes" class="bg-gradient-to-r from-brandBronze to-brandGold text-brandNavy font-bold px-5 py-2.5 rounded-xl text-xs hover:shadow-lg transition">
+                    تسوق الآن <i class="fa-solid fa-cart-shopping mr-1"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- الهيرو (Hero Section) -->
+    <section id="hero" class="relative z-10 py-16 lg:py-24 border-b border-brandBronze/20 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
+            <div class="text-right space-y-6">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brandBronze/10 border border-brandBronze/40 text-brandGold text-xs font-bold">
+                    <i class="fa-solid fa-bolt text-xs ml-1"></i> الشحن متوفر لجميع المحافظات
+                </span>
+                <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
+                    احجز أو اطلب عجلتك مباشرة من <span class="gold-gradient-text">العجلاتي</span>
+                </h2>
+                <p class="text-gray-300 text-base sm:text-lg font-tajawal leading-relaxed">
+                    أسهل منصة لشراء وحجز الدراجات في مصر. اطلب مباشرة من الموقع أو احجز الدراجات النادرة عن طريق دفع عربون سريع عبر المحافظ الإلكترونية.
+                </p>
+                <div class="flex flex-wrap gap-4 pt-2">
+                    <a href="#bikes" class="bg-gradient-to-r from-brandBronze to-brandGold text-brandNavy font-bold px-8 py-3.5 rounded-xl shadow-lg hover:scale-105 transition duration-300">
+                        تصفح المعرض <i class="fa-solid fa-arrow-left mr-2"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="relative flex justify-center">
+                <div class="w-72 h-72 sm:w-96 sm:h-96 rounded-full border-4 border-brandBronze/30 bg-brandBlue/40 flex items-center justify-center p-8 relative gold-glow">
+                    <i class="fa-solid fa-bicycle text-9xl text-brandGold opacity-90"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- إحصائيات المتجر -->
+    <section id="features" class="relative z-10 py-8 bg-brandNavy/60 border-b border-brandBronze/20">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+                <h4 class="text-2xl sm:text-3xl font-black text-brandGold">+500</h4>
+                <p class="text-xs text-gray-400 font-tajawal mt-1">دراجة مباعة ومسلمة</p>
+            </div>
+            <div>
+                <h4 class="text-2xl sm:text-3xl font-black text-brandGold">100%</h4>
+                <p class="text-xs text-gray-400 font-tajawal mt-1">قطع غيار أصلية</p>
+            </div>
+            <div>
+                <h4 class="text-2xl sm:text-3xl font-black text-brandGold">سريع</h4>
+                <p class="text-xs text-gray-400 font-tajawal mt-1">تأكيد طلبات فورية</p>
+            </div>
+            <div>
+                <h4 class="text-2xl sm:text-3xl font-black text-brandGold">حجز آمن</h4>
+                <p class="text-xs text-gray-400 font-tajawal mt-1">عربون فودافون كاش</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الدراجات -->
+    <section id="bikes" class="relative z-10 py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center space-y-3 mb-12">
+            <h3 class="text-3xl font-black text-white">معرض <span class="gold-gradient-text">الدراجات</span></h3>
+            <p class="text-gray-400 font-tajawal">اطلب عجلتك فوراً من الموقع أو احجزها بعربون قبل نفاد الكمية</p>
+        </div>
+        <div id="bikesContainer" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+    </section>
+
+    <!-- قسم قطع الغيار -->
+    <section id="parts" class="relative z-10 py-16 bg-brandNavy/40 border-y border-brandBronze/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center space-y-3 mb-12">
+                <h3 class="text-3xl font-black text-white">قطع الغيار <span class="gold-gradient-text">والإكسسوارات</span></h3>
+                <p class="text-gray-400 font-tajawal">اطلب أفضل قطع الغيار الأصلية مباشرة مع توصيل للمنزل</p>
+            </div>
+            <div id="partsContainer" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </div>
+    </section>
+
+    <!-- مودال طلب الشراء المباشر من الموقع -->
+    <div id="directOrderModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-brandNavy border border-brandBronze rounded-2xl max-w-lg w-full p-6 relative shadow-2xl">
+            <button onclick="closeDirectOrderModal()" class="absolute top-4 left-4 text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="text-center space-y-2 mb-6">
+                <div class="w-12 h-12 rounded-full bg-brandBronze/20 text-brandGold flex items-center justify-center mx-auto text-xl border border-brandBronze/40">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+                <h4 class="text-xl font-bold text-white">طلب شراء مباشر من الموقع</h4>
+                <p class="text-xs text-gray-300" id="orderModalProductTitle"></p>
+                <div class="text-brandGold font-bold text-sm" id="orderModalProductPrice"></div>
+            </div>
+
+            <form onsubmit="submitDirectOrder(event)" class="space-y-4">
+                <input type="hidden" id="orderProductId">
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-brandGold">الاسم بالكامل</label>
+                    <input type="text" id="custName" required placeholder="أدخل اسمك الثلاثي" class="w-full bg-brandDarkBg border border-brandBronze/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandGold">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-brandGold">رقم الهاتف / الموبايل</label>
+                    <input type="tel" id="custPhone" required placeholder="01xxxxxxxxx" class="w-full bg-brandDarkBg border border-brandBronze/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandGold">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-brandGold">المحافظة والعنوان التفصيلي</label>
+                    <textarea id="custAddress" rows="2" required placeholder="المحافظة - المدينة - الشارع - رقم العمارة" class="w-full bg-brandDarkBg border border-brandBronze/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandGold"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-brandGold">ملاحظات إضافية (اختياري)</label>
+                    <input type="text" id="custNotes" placeholder="أي تفاصيل أخرى بخصوص الموعد أو المقاس" class="w-full bg-brandDarkBg border border-brandBronze/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandGold">
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-brandBronze to-brandGold text-brandNavy font-bold py-3.5 rounded-xl shadow-lg hover:brightness-110 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> تأكيد وإرسال الطلب
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال حجز الدراجة بدفع العربون (الواتساب + تحويل كاش) -->
+    <div id="depositModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-brandNavy border border-brandBronze rounded-2xl max-w-lg w-full p-6 relative shadow-2xl">
+            <button onclick="closeDepositModal()" class="absolute top-4 left-4 text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+
+            <div class="text-center space-y-2 mb-6">
+                <div class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-xl border border-emerald-500/40">
+                    <i class="fa-solid fa-bookmark"></i>
+                </div>
+                <h4 class="text-xl font-bold text-white">حجز الدراجة بدفع العربون</h4>
+                <p class="text-xs text-gray-300" id="depositBikeTitle"></p>
+            </div>
+
+            <!-- معلومات تحويل العربون للزبون -->
+            <div class="bg-brandDarkBg p-4 rounded-xl border border-brandBronze/30 space-y-3 mb-6 text-sm">
+                <div class="flex justify-between items-center border-b border-brandBronze/20 pb-2">
+                    <span class="text-gray-400">مبلغ العربون المطلوب:</span>
+                    <span id="depositAmountDisplay" class="text-brandGold font-black text-base"></span>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-gray-400 text-xs block">حول العربون على رقم محفظة الكاش التالية:</span>
+                    <div class="flex items-center justify-between bg-brandNavy p-2.5 rounded-lg border border-brandBronze/20">
+                        <span id="cashNumberDisplay" class="font-mono text-brandGold font-bold text-base tracking-wider"></span>
+                        <button onclick="copyCashNumber()" class="text-xs bg-brandBronze/20 text-brandGold px-2.5 py-1 rounded hover:bg-brandBronze hover:text-brandNavy transition">
+                            <i class="fa-solid fa-copy"></i> نسخ
+                        </button>
+                    </div>
+                </div>
+                <p class="text-[11px] text-amber-400 font-tajawal">
+                    * بعد تحويل العربون، اضغط على الزر بالأسفل لإرسال صورة الإشعار وتأكيد حجزك عبر الواتساب فوراً.
+                </p>
+            </div>
+
+            <form onsubmit="confirmDepositViaWhatsApp(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-brandGold">اسم المحول بالكامل</label>
+                    <input type="text" id="depCustName" required class="w-full bg-brandDarkBg border border-brandBronze/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandGold">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-brandGold">الرقم الذي تم التحويل منه</label>
+                    <input type="tel" id="depCustPhone" required placeholder="01xxxxxxxxx" class="w-full bg-brandDarkBg border border-brandBronze/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brandGold">
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2 shadow-lg">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> إرسال تأكيد الحجز والعربون للواتساب
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال كلمة سر لوحة التحكم السرية -->
+    <div id="loginModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-brandNavy border border-brandBronze/50 rounded-2xl max-w-md w-full p-6 relative">
+            <button onclick="closeLoginModal()" class="absolute top-4 left-4 text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            <div class="text-center space-y-2 mb-6">
+                <i class="fa-solid fa-user-shield text-4xl text-brandGold"></i>
+                <h4 class="text-xl font-bold text-white">اللوحة السرية - العجلاتي</h4>
+                <p class="text-xs text-gray-400">أدخل كلمة السر للوصول لإدارة الطلبات والمنتجات</p>
+            </div>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1 text-brandGold">كلمة السر</label>
+                    <input type="password" id="adminPassword" required class="w-full bg-brandDarkBg border border-brandBronze/30 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-brandGold">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-brandBronze to-brandGold text-brandNavy font-bold py-3 rounded-xl transition">
+                    تسجيل الدخول
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- لوحة التحكم الكاملة (Admin Dashboard) -->
+    <div id="adminPanel" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-brandNavy border border-brandBronze rounded-2xl max-w-6xl w-full max-h-[95vh] flex flex-col shadow-2xl">
+            
+            <!-- الهيدر -->
+            <div class="p-4 sm:p-6 border-b border-brandBronze/30 flex items-center justify-between bg-brandBlue/50 rounded-t-2xl">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-sliders text-brandGold text-2xl"></i>
+                    <div>
+                        <h3 class="text-xl font-bold text-white">لوحة تحكم وإدارة طلبات العجلاتي</h3>
+                        <p class="text-xs text-gray-400">مرحباً بك يا تاجرنا العزيز</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminPanel()" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-xs font-bold transition">
+                    خروج <i class="fa-solid fa-right-from-bracket mr-1"></i>
+                </button>
+            </div>
+
+            <!-- محتوى اللوحة -->
+            <div class="p-4 sm:p-6 overflow-y-auto space-y-8 custom-scrollbar">
+
+                <!-- شريط التنبيهات وإشعارات الطلبات الجديدة -->
+                <div id="newOrderAlert" class="hidden bg-emerald-600/20 border border-emerald-500/50 p-4 rounded-xl flex items-center justify-between animate-pulse">
+                    <div class="flex items-center gap-3 text-emerald-400 font-bold text-sm">
+                        <i class="fa-solid fa-bell text-xl"></i>
+                        <span>وصلك طلب شراء جديد من الموقع الآن!</span>
+                    </div>
+                    <button onclick="dismissAlert()" class="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg">معاينة الطلبات</button>
+                </div>
+
+                <!-- إعدادات المحفظة والكاش والعربون وتغيير كلمة السر -->
+                <div class="bg-brandDarkBg p-4 sm:p-6 rounded-xl border border-brandBronze/20 space-y-4">
+                    <h4 class="text-brandGold font-bold text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-wallet"></i> إعدادات المتجر وكلمة السر
+                    </h4>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1">رقم محفظة الكاش (للعربون):</label>
+                            <input type="text" id="cashNumberInput" class="bg-brandNavy border border-brandBronze/30 rounded-lg px-3 py-2 text-white text-sm w-full">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1">مبلغ العربون (جنيه):</label>
+                            <input type="number" id="depositAmountInput" class="bg-brandNavy border border-brandBronze/30 rounded-lg px-3 py-2 text-white text-sm w-full">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1">رقم الواتساب المستلم:</label>
+                            <input type="text" id="storePhoneInput" class="bg-brandNavy border border-brandBronze/30 rounded-lg px-3 py-2 text-white text-sm w-full">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1">تغيير كلمة سر اللوحة:</label>
+                            <input type="password" id="newAdminPasswordInput" placeholder="أدخل كلمة سر جديدة" class="bg-brandNavy border border-brandBronze/30 rounded-lg px-3 py-2 text-white text-sm w-full">
+                        </div>
+                    </div>
+                    <button onclick="saveStoreSettings()" class="bg-brandBronze text-brandNavy font-bold px-6 py-2.5 rounded-lg text-xs hover:bg-brandGold transition">
+                        حفظ جميع الإعدادات وكلمة السر <i class="fa-solid fa-floppy-disk mr-1"></i>
+                    </button>
+                </div>
+
+                <!-- جدول إدارة الطلبات -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-brandGold font-bold text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-boxes-packing"></i> إدارة الطلبات الواردة من الموقع
+                        </h4>
+                        <!-- فلتر الطلبات -->
+                        <div class="flex gap-2">
+                            <button onclick="filterOrders('all')" class="bg-brandBlue text-xs px-3 py-1.5 rounded-lg border border-brandBronze/30 hover:border-brandGold">الكل</button>
+                            <button onclick="filterOrders('pending')" class="bg-amber-500/20 text-amber-300 text-xs px-3 py-1.5 rounded-lg border border-amber-500/30">جديد</button>
+                            <button onclick="filterOrders('reserved')" class="bg-blue-500/20 text-blue-300 text-xs px-3 py-1.5 rounded-lg border border-blue-500/30">محجوز بعربون</button>
+                            <button onclick="filterOrders('completed')" class="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1.5 rounded-lg border border-emerald-500/30">تم البيع والشحن</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto bg-brandDarkBg rounded-xl border border-brandBronze/30">
+                        <table class="w-full text-right text-xs text-gray-300">
+                            <thead class="bg-brandNavy text-brandGold border-b border-brandBronze/30 uppercase">
+                                <tr>
+                                    <th class="p-3">كود الطلب</th>
+                                    <th class="p-3">المنتج المطلوب</th>
+                                    <th class="p-3">بيانات الزبون</th>
+                                    <th class="p-3">العنوان / الملاحظات</th>
+                                    <th class="p-3">السعر</th>
+                                    <th class="p-3">حالة الطلب</th>
+                                    <th class="p-3">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody" class="divide-y divide-brandBronze/10"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- إضافة منتج جديد -->
+                <div class="bg-brandDarkBg p-4 sm:p-6 rounded-xl border border-brandBronze/30">
+                    <h4 class="text-brandGold font-bold mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> إضافة دراجة أو قطعة غيار للمتجر (أونلاين)
+                    </h4>
+                    <form onsubmit="handleAddProduct(event)" class="space-y-4">
+                        <div class="grid sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs mb-1">اسم المنتج</label>
+                                <input type="text" id="pTitle" required class="w-full bg-brandNavy border border-brandBronze/30 rounded-lg p-2.5 text-sm text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs mb-1">السعر (جنيه)</label>
+                                <input type="number" id="pPrice" required class="w-full bg-brandNavy border border-brandBronze/30 rounded-lg p-2.5 text-sm text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs mb-1">القسم</label>
+                                <select id="pCategory" class="w-full bg-brandNavy border border-brandBronze/30 rounded-lg p-2.5 text-sm text-white">
+                                    <option value="bike">دراجة / عجلة</option>
+                                    <option value="part">قطعة غيار / إكسسوار</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold text-brandGold">صورة المنتج:</label>
+                            <div class="grid sm:grid-cols-2 gap-4">
+                                <div>
+                                    <span class="text-xs text-gray-400 block mb-1">رفع صورة من الجهاز / المعرض:</span>
+                                    <input type="file" id="pFile" accept="image/*" onchange="previewImageFile(this)" class="w-full text-xs text-gray-300 bg-brandNavy border border-brandBronze/30 rounded-lg p-2">
+                                </div>
+                                <div>
+                                    <span class="text-xs text-gray-400 block mb-1">أو وضع رابط صورة خارجي (URL):</span>
+                                    <input type="url" id="pUrl" placeholder="https://example.com/image.jpg" class="w-full bg-brandNavy border border-brandBronze/30 rounded-lg p-2.5 text-sm text-white">
+                                </div>
+                            </div>
+                            <div id="imagePreviewContainer" class="hidden mt-2">
+                                <span class="text-xs text-gray-400 block mb-1">معاينة الصورة:</span>
+                                <img id="imagePreview" src="" class="h-24 w-24 object-cover rounded-lg border border-brandBronze">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs mb-1">الوصف والمواصفات</label>
+                            <textarea id="pDesc" rows="2" required class="w-full bg-brandNavy border border-brandBronze/30 rounded-lg p-2.5 text-sm text-white"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-brandBronze to-brandGold text-brandNavy font-bold py-3 rounded-lg hover:brightness-110 transition">
+                            نشر المنتج أونلاين على المتجر <i class="fa-solid fa-cloud-arrow-up mr-1"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- قائمة المنتجات الحالية -->
+                <div>
+                    <h4 class="text-brandGold font-bold mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked"></i> المنتجات المعروضة أونلاين
+                    </h4>
+                    <div id="adminProductsList" class="space-y-3"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- الفوتر (Footer) وحقوق المطور جرجس مجيد -->
+    <footer class="relative z-10 bg-brandNavy border-t border-brandBronze/40 mt-20 pt-10 pb-6 text-center text-xs text-gray-300">
+        <div class="max-w-7xl mx-auto px-4 space-y-6">
+            <div class="flex items-center justify-center gap-3">
+                <i class="fa-solid fa-bicycle text-2xl text-brandGold"></i>
+                <span class="text-lg font-bold gold-gradient-text">العجلاتي</span>
+            </div>
+            
+            <p class="text-gray-400 max-w-md mx-auto font-tajawal">
+                أكبر متجر إلكتروني لبيع وحجز الدراجات وقطع الغيار الأصيلة في مصر.
+            </p>
+
+            <div class="border-t border-brandBronze/20 pt-6 space-y-3">
+                <p class="font-semibold text-sm text-white tracking-wide">
+                    Devolep by eng gerges mgeed | تم التطوير بواسطة جرجس مجيد
+                </p>
+
+                <div class="flex justify-center items-center gap-4 pt-2">
+                    <a href="https://wa.me/201039721545" target="_blank" class="bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-600 hover:text-white px-4 py-2 rounded-lg font-bold transition flex items-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-base"></i> واتساب المطور
+                    </a>
+
+                    <!-- حساب الفيسبوك المباشر الخاص بك -->
+                    <a href="https://www.facebook.com/gerges.mgeed" target="_blank" class="bg-blue-600/20 border border-blue-500/50 text-blue-400 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg font-bold transition flex items-center gap-2">
+                        <i class="fa-brands fa-facebook text-base"></i> فيسبوك المطور
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Script -->
+    <script>
+        // ==========================================
+        // 1. إعدادات FIREBASE REALTIME DATABASE
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdO_UUafwL_DcR_EyETvRdT5oENcpldL8",
+            authDomain: "al-ajalaty.firebaseapp.com",
+            databaseURL: "https://al-ajalaty-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "al-ajalaty",
+            storageBucket: "al-ajalaty.firebasestorage.app",
+            messagingSenderId: "462296986959",
+            appId: "1:462296986959:web:22bb610310b36df617813a"
+        };
+
+        let db = null;
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                console.log("Firebase Realtime Database Connected!");
+            }
+        } catch (e) {
+            console.warn("Firebase config not filled yet. Operating in Local Mode.");
+        }
+
+        // ==========================================
+        // 2. البيانات والـ State العامة
+        // ==========================================
+        let storePhone = localStorage.getItem('storePhone') || "01039721545";
+        let cashNumber = localStorage.getItem('cashNumber') || "01039721545";
+        let depositAmount = localStorage.getItem('depositAmount') || "300";
+        let adminPassword = localStorage.getItem('adminPassword') || "admin123";
+        let uploadedBase64Image = "";
+        let currentFilter = 'all';
+
+        let defaultProducts = [
+            {
+                id: '101',
+                title: 'دراجة جبلية TRINX M100 Pro',
+                price: '6800',
+                category: 'bike',
+                image: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=600&q=80',
+                desc: 'دراجة جبلية خفيفة الوزن مع مساعدين أمامي وفرامل ديسك هيدروليك لمختلف الطرق.'
+            },
+            {
+                id: '102',
+                title: 'دراجة سباق Road Bike Shimano',
+                price: '9500',
+                category: 'bike',
+                image: 'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?auto=format&fit=crop&w=600&q=80',
+                desc: 'سرعة فائقة وهيكل ألومنيوم خفيف جداً محترف للسباقات والمسافات الطويلة.'
+            },
+            {
+                id: '103',
+                title: 'طقم تروس وسلسلة Shimano الأصلي',
+                price: '850',
+                category: 'part',
+                image: 'https://images.unsplash.com/photo-1583225214464-9296029427aa?auto=format&fit=crop&w=600&q=80',
+                desc: 'طقم ناقل حركة أصلية شيمانو للتحكم السلس في جميع السرعات.'
+            }
+        ];
+
+        let defaultOrders = [
+            {
+                id: 'ORD-501',
+                productTitle: 'دراجة جبلية TRINX M100 Pro',
+                productPrice: '6800',
+                custName: 'أحمد محمود',
+                custPhone: '01012345678',
+                custAddress: 'القاهرة - مدينة نصر',
+                custNotes: 'الرجاء الاتصال قبل التوصيل',
+                status: 'pending',
+                type: 'direct',
+                date: new Date().toLocaleDateString('ar-EG')
+            }
+        ];
+
+        let products = JSON.parse(localStorage.getItem('alAjalatiProducts')) || defaultProducts;
+        let orders = JSON.parse(localStorage.getItem('alAjalatiOrders')) || defaultOrders;
+
+        // مزامنة البيانات مع Firebase أونلاين إن وجد
+        if (db) {
+            db.ref('products').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    products = Object.values(data);
+                    try {
+                        localStorage.setItem('alAjalatiProducts', JSON.stringify(products));
+                    } catch (err) {}
+                    renderProducts();
+                }
+            });
+
+            db.ref('orders').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    orders = Object.values(data);
+                    try {
+                        localStorage.setItem('alAjalatiOrders', JSON.stringify(orders));
+                    } catch (err) {}
+                    renderOrdersTable();
+                }
+            });
+
+            db.ref('settings').on('value', (snapshot) => {
+                const settings = snapshot.val();
+                if (settings) {
+                    if (settings.adminPassword) adminPassword = settings.adminPassword;
+                    if (settings.storePhone) storePhone = settings.storePhone;
+                    if (settings.cashNumber) cashNumber = settings.cashNumber;
+                    if (settings.depositAmount) depositAmount = settings.depositAmount;
+                }
+            });
+        }
+
+        // ==========================================
+        // 3. طريقة الفتح السرية لوحة التحكم (Triple-Click)
+        // ==========================================
+        let clickCount = 0;
+        let clickTimer = null;
+        document.getElementById('secretAdminTrigger').addEventListener('click', () => {
+            clickCount++;
+            if (clickCount === 1) {
+                clickTimer = setTimeout(() => { clickCount = 0; }, 1000);
+            } else if (clickCount >= 3) {
+                clearTimeout(clickTimer);
+                clickCount = 0;
+                openLoginModal();
+            }
+        });
+
+        // ==========================================
+        // 4. عرض المنتجات في المتجر
+        // ==========================================
+        function renderProducts() {
+            const bikesContainer = document.getElementById('bikesContainer');
+            const partsContainer = document.getElementById('partsContainer');
+            const adminProductsList = document.getElementById('adminProductsList');
+
+            bikesContainer.innerHTML = '';
+            partsContainer.innerHTML = '';
+            adminProductsList.innerHTML = '';
+
+            products.forEach(product => {
+                const cardHTML = `
+                    <div class="bg-brandNavy border border-brandBronze/30 rounded-2xl overflow-hidden hover:border-brandGold transition duration-300 shadow-xl flex flex-col justify-between">
+                        <div>
+                            <div class="h-52 overflow-hidden bg-black/40 relative">
+                                <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover hover:scale-105 transition duration-500">
+                                <span class="absolute top-3 right-3 bg-brandBronze text-brandNavy font-black text-xs px-3 py-1 rounded-full shadow">
+                                    ${product.price} ج.م
+                                </span>
+                            </div>
+                            <div class="p-5 space-y-2">
+                                <h4 class="font-bold text-lg text-white">${product.title}</h4>
+                                <p class="text-xs text-gray-300 font-tajawal leading-relaxed">${product.desc}</p>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0 space-y-2">
+                            <button onclick="openDirectOrderModal('${product.id}', '${product.title}', '${product.price}')" class="w-full bg-gradient-to-r from-brandBronze to-brandGold text-brandNavy font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-md">
+                                <i class="fa-solid fa-cart-shopping"></i> طلب شراء من الموقع
+                            </button>
+                            
+                            ${product.category === 'bike' ? `
+                                <button onclick="openDepositModal('${product.title}')" class="w-full bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-600 hover:text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 text-xs">
+                                    <i class="fa-solid fa-bookmark"></i> حجز العجلة بدفع عربون
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+
+                if (product.category === 'bike') {
+                    bikesContainer.innerHTML += cardHTML;
+                } else {
+                    partsContainer.innerHTML += cardHTML;
+                }
+
+                adminProductsList.innerHTML += `
+                    <div class="bg-brandNavy p-3 rounded-lg border border-brandBronze/20 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${product.image}" class="w-12 h-12 rounded object-cover border border-brandBronze/30">
+                            <div>
+                                <h5 class="text-sm font-bold text-white">${product.title}</h5>
+                                <span class="text-xs text-brandGold font-semibold">${product.price} ج.م</span>
+                            </div>
+                        </div>
+                        <button onclick="deleteProduct('${product.id}')" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                            <i class="fa-solid fa-trash"></i> حذف
+                        </button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('storePhoneInput').value = storePhone;
+            document.getElementById('cashNumberInput').value = cashNumber;
+            document.getElementById('depositAmountInput').value = depositAmount;
+
+            renderOrdersTable();
+        }
+
+        // الحفظ المحمي لمنع QuotaExceededError والتزامن مع السيرفر
+        function saveProducts() {
+            try {
+                localStorage.setItem('alAjalatiProducts', JSON.stringify(products));
+            } catch (e) {
+                console.warn("localStorage quota exceeded, saving to Firebase only.");
+            }
+
+            if (db) {
+                const productsObj = {};
+                products.forEach(p => productsObj[p.id] = p);
+                db.ref('products').set(productsObj).catch(err => {
+                    console.error("Firebase save products error:", err);
+                });
+            }
+            renderProducts();
+        }
+
+        function saveOrders() {
+            try {
+                localStorage.setItem('alAjalatiOrders', JSON.stringify(orders));
+            } catch (e) {}
+
+            if (db) {
+                const ordersObj = {};
+                orders.forEach(o => ordersObj[o.id] = o);
+                db.ref('orders').set(ordersObj).catch(err => {
+                    console.error("Firebase save orders error:", err);
+                });
+            }
+            renderOrdersTable();
+        }
+
+        // ==========================================
+        // 5. نظام طلب الشراء المباشر من الموقع
+        // ==========================================
+        function openDirectOrderModal(id, title, price) {
+            document.getElementById('orderProductId').value = id;
+            document.getElementById('orderModalProductTitle').innerText = title;
+            document.getElementById('orderModalProductPrice').innerText = price + ' جنيه مصري';
+            document.getElementById('directOrderModal').classList.remove('hidden');
+        }
+
+        function closeDirectOrderModal() {
+            document.getElementById('directOrderModal').classList.add('hidden');
+        }
+
+        function submitDirectOrder(e) {
+            e.preventDefault();
+            const pId = document.getElementById('orderProductId').value;
+            const pObj = products.find(p => p.id === pId);
+
+            const newOrder = {
+                id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
+                productTitle: pObj ? pObj.title : 'منتج',
+                productPrice: pObj ? pObj.price : '0',
+                custName: document.getElementById('custName').value,
+                custPhone: document.getElementById('custPhone').value,
+                custAddress: document.getElementById('custAddress').value,
+                custNotes: document.getElementById('custNotes').value || 'لا يوجد',
+                status: 'pending',
+                type: 'direct',
+                date: new Date().toLocaleDateString('ar-EG')
+            };
+
+            orders.unshift(newOrder);
+            saveOrders();
+
+            closeDirectOrderModal();
+            showToast('تم إرسال طلبك بنجاح! سيتواصل معك فريق العجلاتي قريباً.');
+            
+            playNotificationSound();
+            document.getElementById('newOrderAlert').classList.remove('hidden');
+
+            document.getElementById('custName').value = '';
+            document.getElementById('custPhone').value = '';
+            document.getElementById('custAddress').value = '';
+            document.getElementById('custNotes').value = '';
+        }
+
+        // ==========================================
+        // 6. نظام حجز الدراجة بعربون (الواتساب + تحويل كاش)
+        // ==========================================
+        let selectedBikeForDeposit = "";
+
+        function openDepositModal(title) {
+            selectedBikeForDeposit = title;
+            document.getElementById('depositBikeTitle').innerText = title;
+            document.getElementById('depositAmountDisplay').innerText = depositAmount + ' ج.م';
+            document.getElementById('cashNumberDisplay').innerText = cashNumber;
+            document.getElementById('depositModal').classList.remove('hidden');
+        }
+
+        function closeDepositModal() {
+            document.getElementById('depositModal').classList.add('hidden');
+        }
+
+        function copyCashNumber() {
+            navigator.clipboard.writeText(cashNumber);
+            showToast('تم نسخ رقم المحفظة بنجاح!');
+        }
+
+        function confirmDepositViaWhatsApp(e) {
+            e.preventDefault();
+            const name = document.getElementById('depCustName').value;
+            const phone = document.getElementById('depCustPhone').value;
+
+            const depositOrder = {
+                id: 'DEP-' + Math.floor(1000 + Math.random() * 9000),
+                productTitle: selectedBikeForDeposit,
+                productPrice: 'عربون (' + depositAmount + ' ج.م)',
+                custName: name,
+                custPhone: phone,
+                custAddress: 'حجز عبر الواتساب بالعربون',
+                custNotes: 'تم تحويل العربون من الرقم: ' + phone,
+                status: 'reserved',
+                type: 'deposit',
+                date: new Date().toLocaleDateString('ar-EG')
+            };
+
+            orders.unshift(depositOrder);
+            saveOrders();
+
+            const message = `تأكيد حجز دراجة بعربون - العجلاتي:\n- العجلة: ${selectedBikeForDeposit}\n- الاسم: ${name}\n- تم تحويل عربون بقيمة: ${depositAmount} ج.م\n- الرقم المحول منه: ${phone}`;
+            const encodedMsg = encodeURIComponent(message);
+            
+            closeDepositModal();
+            window.open(`https://wa.me/20${storePhone}?text=${encodedMsg}`, '_blank');
+        }
+
+        // ==========================================
+        // 7. عرض وإدارة الطلبات في لوحة التحكم (التاجر)
+        // ==========================================
+        function renderOrdersTable() {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+
+            let filteredOrders = orders;
+            if (currentFilter !== 'all') {
+                filteredOrders = orders.filter(o => o.status === currentFilter);
+            }
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-gray-500">لا توجد طلبات في هذا القسم حالياً</td></tr>`;
+                return;
+            }
+
+            filteredOrders.forEach(ord => {
+                let statusBadge = '';
+                if (ord.status === 'pending') statusBadge = `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full text-[10px]">قيد الانتظار</span>`;
+                else if (ord.status === 'reserved') statusBadge = `<span class="bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2.5 py-1 rounded-full text-[10px]">محجوز بعربون</span>`;
+                else if (ord.status === 'completed') statusBadge = `<span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-full text-[10px]">تم الشحن والبيع</span>`;
+                else statusBadge = `<span class="bg-red-500/20 text-red-300 border border-red-500/30 px-2.5 py-1 rounded-full text-[10px]">ملغي</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-brandBlue/30 transition">
+                        <td class="p-3 font-mono text-brandGold">${ord.id}</td>
+                        <td class="p-3 font-bold text-white">${ord.productTitle}</td>
+                        <td class="p-3">
+                            <div class="font-bold text-white">${ord.custName}</div>
+                            <div class="text-gray-400 font-mono">${ord.custPhone}</div>
+                        </td>
+                        <td class="p-3 text-gray-300 max-w-xs truncate">${ord.custAddress} <br><span class="text-gray-500 text-[10px]">${ord.custNotes}</span></td>
+                        <td class="p-3 font-bold text-brandGold">${ord.productPrice}</td>
+                        <td class="p-3">${statusBadge}</td>
+                        <td class="p-3">
+                            <div class="flex gap-1">
+                                <button onclick="changeOrderStatus('${ord.id}', 'completed')" title="تعليم كتم البيع" class="bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white p-1.5 rounded"><i class="fa-solid fa-check"></i></button>
+                                <button onclick="changeOrderStatus('${ord.id}', 'reserved')" title="تعليم كمحجوز" class="bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white p-1.5 rounded"><i class="fa-solid fa-bookmark"></i></button>
+                                <button onclick="deleteOrder('${ord.id}')" title="حذف الطلب" class="bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white p-1.5 rounded"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterOrders(status) {
+            currentFilter = status;
+            renderOrdersTable();
+        }
+
+        function changeOrderStatus(orderId, newStatus) {
+            const ord = orders.find(o => o.id === orderId);
+            if (ord) {
+                ord.status = newStatus;
+                saveOrders();
+                showToast('تم تحديث حالة الطلب بنجاح');
+            }
+        }
+
+        function deleteOrder(orderId) {
+            if (confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
+                orders = orders.filter(o => o.id !== orderId);
+                saveOrders();
+            }
+        }
+
+        function dismissAlert() {
+            document.getElementById('newOrderAlert').classList.add('hidden');
+        }
+
+        // ==========================================
+        // 8. لوحة التحكم والاعتمادات
+        // ==========================================
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const inputPass = document.getElementById('adminPassword').value;
+            if (inputPass === adminPassword) {
+                closeLoginModal();
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('adminPassword').value = '';
+            } else {
+                alert('كلمة السر غير صحيحة!');
+            }
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminPanel').classList.add('hidden');
+        }
+
+        function saveStoreSettings() {
+            storePhone = document.getElementById('storePhoneInput').value;
+            cashNumber = document.getElementById('cashNumberInput').value;
+            depositAmount = document.getElementById('depositAmountInput').value;
+            const newPass = document.getElementById('newAdminPasswordInput').value;
+
+            if (newPass && newPass.trim() !== '') {
+                adminPassword = newPass.trim();
+                localStorage.setItem('adminPassword', adminPassword);
+                document.getElementById('newAdminPasswordInput').value = '';
+            }
+
+            localStorage.setItem('storePhone', storePhone);
+            localStorage.setItem('cashNumber', cashNumber);
+            localStorage.setItem('depositAmount', depositAmount);
+
+            if (db) {
+                db.ref('settings').set({
+                    adminPassword,
+                    storePhone,
+                    cashNumber,
+                    depositAmount
+                });
+            }
+
+            alert('تم حفظ جميع الإعدادات وكلمة السر أونلاين بنجاح!');
+        }
+
+        function previewImageFile(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxWidth = 500;
+                        const scaleSize = maxWidth / img.width;
+                        canvas.width = maxWidth;
+                        canvas.height = img.height * scaleSize;
+
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        uploadedBase64Image = canvas.toDataURL('image/jpeg', 0.6);
+
+                        document.getElementById('imagePreview').src = uploadedBase64Image;
+                        document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleAddProduct(e) {
+            e.preventDefault();
+            const title = document.getElementById('pTitle').value;
+            const price = document.getElementById('pPrice').value;
+            const category = document.getElementById('pCategory').value;
+            const urlInput = document.getElementById('pUrl').value;
+            const desc = document.getElementById('pDesc').value;
+
+            let finalImage = uploadedBase64Image || urlInput || 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=600&q=80';
+
+            const newProduct = {
+                id: Date.now().toString(),
+                title,
+                price,
+                category,
+                image: finalImage,
+                desc
+            };
+
+            products.push(newProduct);
+            saveProducts();
+
+            document.getElementById('pTitle').value = '';
+            document.getElementById('pPrice').value = '';
+            document.getElementById('pUrl').value = '';
+            document.getElementById('pFile').value = '';
+            document.getElementById('pDesc').value = '';
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            uploadedBase64Image = "";
+
+            alert('تمت إضافة المنتج ونشره أونلاين بنجاح!');
+        }
+
+        function deleteProduct(id) {
+            if (confirm('هل أنت تأكد من حذف هذا المنتج؟')) {
+                products = products.filter(p => p.id !== id);
+                if (db) {
+                    db.ref('products/' + id).remove();
+                }
+                saveProducts();
+            }
+        }
+
+        // ==========================================
+        // 9. الإشعارات والمساعدات
+        // ==========================================
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'bg-brandNavy border border-brandGold text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-bold flex items-center gap-2 animate-bounce';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-brandGold text-base"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function playNotificationSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.3);
+            } catch (e) {}
+        }
+
+        // بدء التشغيل
+        renderProducts();
+    </script>
+</body>
+</html>
